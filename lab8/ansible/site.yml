@@ -1,0 +1,30 @@
+---
+- name: Build static site locally on runner
+  hosts: web
+  gather_facts: false
+
+  vars:
+    # Use SITE_DIR from env when provided; default to ./site
+    site_dir: "{{ lookup('env','SITE_DIR') | default('./site', true) }}"
+
+  tasks:
+    - name: Ensure site directory exists
+      file:
+        path: "{{ site_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Create index.html
+      copy:
+        dest: "{{ site_dir }}/index.html"
+        mode: "0644"
+        content: |
+          <!doctype html>
+          <html>
+          <head><meta charset="utf-8"><title>GitHub Pages via Ansible</title></head>
+          <body style="font-family: system-ui; margin:2rem">
+            <h1>✅ Deployed with Ansible on a GitHub Runner</h1>
+            <p>Hosting: GitHub Pages</p>
+            <p>Build time (UTC): {{ lookup('pipe','date -u +%Y-%m-%dT%H:%M:%SZ') }}</p>
+          </body>
+          </html>
