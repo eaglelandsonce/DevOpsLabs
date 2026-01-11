@@ -11,6 +11,9 @@ jobs:
   test:
     name: Test Application
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     steps:
       # Get the code
       - name: Get Code

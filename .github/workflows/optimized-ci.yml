@@ -5,12 +5,12 @@ on:
     branches: [main, develop]
     # ✅ include workflow + docs + script so pushes trigger
     paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'package*.json'
+      - 'lab3/simple-cicd-pipeline/src/**'
+      - 'lab3/simple-cicd-pipeline/tests/**'
+      - 'lab3/simple-cicd-pipeline/package*.json'
       - '.github/workflows/**'
-      - 'performance-check.sh'
-      - 'LAB3-GUIDE.md'
+      - 'lab3/simple-cicd-pipeline/performance-check.sh'
+      - 'lab3/simple-cicd-pipeline/LAB3-GUIDE.md'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -30,6 +30,9 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     outputs:
       environment: ${{ steps.detect.outputs.environment }}
       deploy: ${{ steps.detect.outputs.deploy }}
@@ -62,8 +65,8 @@ jobs:
           echo "Changed files:"
           echo "$CHANGED"
 
-          APP_PAT='^(src/|tests/|package(-lock)?\.json)'
-          DOCS_PAT='^(\.github/workflows/|LAB3-GUIDE\.md|performance-check\.sh|README\.md)'
+          APP_PAT='^lab3/simple-cicd-pipeline/(src/|tests/|package(-lock)?\.json)'
+          DOCS_PAT='^(\.github/workflows/|lab3/simple-cicd-pipeline/(LAB3-GUIDE\.md|performance-check\.sh|README\.md))'
 
           ONLY_DOCS=true
           while IFS= read -r f; do
@@ -101,6 +104,9 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     needs: setup
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     strategy:
       matrix:
         check: [test, lint]
@@ -116,8 +122,8 @@ jobs:
         id: cache-node-modules
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          path: lab3/simple-cicd-pipeline/node_modules
+          key: node-modules-${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('lab3/simple-cicd-pipeline/package-lock.json') }}
 
       - name: Install deps
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -134,6 +140,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: [setup, quality]
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     outputs:
       size: ${{ steps.size.outputs.size }}
     steps:
@@ -148,8 +157,8 @@ jobs:
         id: cache-node-modules
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          path: lab3/simple-cicd-pipeline/node_modules
+          key: node-modules-${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('lab3/simple-cicd-pipeline/package-lock.json') }}
 
       - name: Install deps
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -167,7 +176,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ needs.setup.outputs.environment }}-${{ github.run_number }}
-          path: dist/
+          path: lab3/simple-cicd-pipeline/dist/
 
   deploy:
     runs-on: ubuntu-latest

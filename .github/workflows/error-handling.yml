@@ -24,6 +24,9 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     outputs:
       error: ${{ steps.set.outputs.error }}
       mode: ${{ steps.set.outputs.mode }}
@@ -38,6 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     continue-on-error: true
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -62,6 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, deps]
     continue-on-error: true
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -94,6 +103,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, deps, test]
     continue-on-error: true
+    defaults:
+      run:
+        working-directory: lab3/simple-cicd-pipeline
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -125,5 +137,5 @@ jobs:
         if: always()
         with:
           name: build-artifacts-${{ github.run_number }}
-          path: dist/
+          path: lab3/simple-cicd-pipeline/dist/
           if-no-files-found: ignore
